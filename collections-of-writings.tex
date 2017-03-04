@@ -1,0 +1,245 @@
+\documentclass[oneside,11pt]{scrbook}
+
+\makeatletter
+\DeclareOldFontCommand{\rm}{\normalfont\rmfamily}{\mathrm}
+\DeclareOldFontCommand{\sf}{\normalfont\sffamily}{\mathsf}
+\DeclareOldFontCommand{\tt}{\normalfont\ttfamily}{\mathtt}
+\DeclareOldFontCommand{\bf}{\normalfont\bfseries}{\mathbf}
+\DeclareOldFontCommand{\it}{\normalfont\itshape}{\mathit}
+\DeclareOldFontCommand{\sl}{\normalfont\slshape}{\@nomath\sl}
+\DeclareOldFontCommand{\sc}{\normalfont\scshape}{\@nomath\sc}
+\makeatother
+
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage{hyperref}
+\usepackage{mathtools}
+\usepackage{enumerate}
+\usepackage{graphicx}
+\usepackage{mathpazo}
+\usepackage{parskip}
+
+\theoremstyle{plain} 
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{algorithm}{Algorithm}
+\newtheorem{problem}[theorem]{Problem}
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+
+
+\theoremstyle{definition}
+\newtheorem*{definition}{Definition} 
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+
+\usepackage[margin=1in]{geometry}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+%\lhead{The Diagram}
+%\rhead{Sidhanth Mohanty} 
+\cfoot{\thepage}
+
+\DeclareMathOperator{\Tr}{Tr}
+
+\newcommand{\half}{\frac{1}{2}}
+\newcommand{\cbrt}[1]{\sqrt[3]{#1}}
+\newcommand{\Prob}{\textbf{Pr}}
+\newcommand{\eps}{\varepsilon}
+\DeclareMathOperator*{\E}{\textbf{E}}
+\newcommand{\Ind}{\boldsymbol{1}}
+\newcommand{\Ener}{\mathcal{E}}
+\newcommand{\Var}{\textbf{Var}}
+\newcommand{\rank}{\mathsf{rank}}
+
+\begin{document}
+
+\title{The Diagram}
+\author{\textsf{Sidhanth Mohanty}}
+\date{\today}
+\maketitle
+
+\tableofcontents
+
+\chapter{Randomness}
+
+\section{Second Moment Method}
+
+One cool tool in probabilistic method is Chebyshev's inequality: which crudely says
+that the probability that a random variable strays away from it's expectation drops
+roughly at a rate quadratic in number of standard deviations.
+
+\medskip
+
+\begin{theorem}[\textsf{Chebyshev's inequality}]
+If $X$ is a random variable with mean $\mu$ and
+variance $\sigma^2$, then for all positive real numbers $a$
+\[
+\Prob[|X-\mu|>a\sigma]\leq\frac{1}{a^2}
+\]
+\end{theorem}
+\begin{proof}[\textsf{How to prove it}]
+Apply Markov's inequality on $\Prob[|X-\mu|^2>a^2\sigma^2]$.
+\end{proof}
+
+Indeed, one would think a low variance random variable to usually sit around it's expectation, and
+Chebyshev's inequality simply quantifies that intuitive thought.
+
+Turns out this quantitative statement is pretty useful!
+
+Let us illustrate it's power on a problem taken from Alon and Spencer's charming book
+\cite{alon2004probabilistic} (slightly simplified to avoid certain technical workarounds).
+
+\begin{problem}
+For any set of $n$ 2D integer vectors $v_1,v_2,\ldots,v_n$, where we write $v_i=\begin{bmatrix}
+x_i\\
+y_i
+\end{bmatrix}$, with the property that $0 < x_i,y_i\leq\frac{2^{n/2}}{100\sqrt{n}}$ for all $i$,
+we can find disjoint, nonempty $I,J\subseteq[n]$ such that
+\[
+\sum_{i\in I}v_i=\sum_{j\in J}v_j
+\]
+\end{problem}
+
+The first instinctive response to this type of problem is to apply some type of a pigeonhole
+principle argument.
+
+\textsf{Observation:}
+If we can find two subsets $I,J$ such that $\sum_{i\in I}v_i=\sum_{i\in J}v_i$, it
+is sufficient as the sets $I'$ and $J'$ with the intersection removed from $I$ and $J$
+work too.
+
+We cast the observation in different light. Suppose we have
+\[
+\sum_{i=1}^n \lambda_i v_i = \sum_{i=1}^n \mu_i v_i
+\]
+for $\lambda_i,\mu_i\in\{0,1\}$ for all $i$, and $\lambda_i\neq\mu_i$ for some $i$,
+then
+\begin{align*}
+\sum_{i=1}^n \lambda_i v_i - \sum_{i=1}^n \mu_i v_i &= 0\\
+\sum_{i=1}^n (\lambda_i-\mu_i)v_i &= 0\\
+\end{align*}
+
+Note that $\lambda_i-\mu_i$ is in $\{-1,0,1\}$ always.
+We put $i$ in $I$ if coefficient of $v_i$ in this sum is $-1$,
+and in $J$ if the coefficient is $1$ to get valid disjoint sets
+$I$ and $J$. Thus, we only need to find appropriate $\lambda_i$ and
+$\mu_i$.
+
+\begin{proof}[\textsf{Attempt 1 via pigeonhole principle}]
+\renewcommand{\qedsymbol}{}
+
+We'll try to apply Pigeonhole Principle naively and we'll see where it breaks.
+That will motivate a smarter approach.
+
+There are a total of $2^n-1$ nonempty subsets.
+
+We know that any sum of the form $\sum_{i=1}^n\lambda_iv_i$ must have integer coordinates
+bounded by $\frac{2^{n/2}\sqrt{n}}{100}$.
+
+If we can say a statement like, ``any sum of
+the form $\sum_{i=1}^n\lambda_iv_i$ must lie in the set $T$ with $|T|<2^n-1$'',
+life would be great because the result would be immediate
+from pigeonhole principle.
+
+Unfortunately, a quick calculation tells us that $\sum_{i\in I}v_i$
+can be any of $\frac{n2^n}{10000}$ vectors, which is greater
+greater than $2^n-1$ for large $n$: we have to try harder.
+
+\end{proof}
+
+The key reason the last attempt did not work was that there were too many
+holes and too few pigeons. We will now show that most pigeons are concentrated in only
+a small number of holes and that all the other holes are sparse on pigeons.
+
+If you have $0\leq i,j\leq k$, then there is only one way for $i+j=2k$ but many ways
+for $i+j=k$, which roughly gives us the intuitive statement ``for most $i,j$ pairs,
+$i+j$ is roughly $k$''. This motivates aiming for a concentration result.
+
+\begin{proof}[Another attempt]
+Let $v=\begin{bmatrix}x\\y\end{bmatrix}$ be the random variable
+denoting $\sum_{i=1}^n\lambda_i v_i$ where each $\lambda_i$ is i.i.d. by flipping a
+fair coin.
+
+Let's note the expectation and variance of $x$ and $y$.
+\[\E[x] = \frac{1}{2}\sum_{i=1}^nx_i\]
+\[
+\Var[x] = \frac{1}{4}\sum_{i=1}^n x_i^2 \leq
+\frac{2^n}{10000}
+\]
+
+Expression for $\E[y]$ is similar and $\Var[y]$ can be bounded the same way.
+
+We are now going to use Chebyshev's inequality to show that most of the `pigeons'
+from our previous failed argument are concentrated in the `holes' around
+$\begin{bmatrix}\E[x]\\\E[y]\end{bmatrix}$.
+
+Applying Chebyshev's inequality tells us that for at least $\frac{3}{4}$ of the
+choices of $\lambda_i$, the value of $\sum_{i=1}^n \lambda_ix_i$ is between $\E[x]-
+\frac{2^{n/2}}{50}$ and $\E[x]+\frac{2^{n/2}}{50}$ and similarly, for more than
+$\frac{3}{4}$ of $\lambda_i$, $\sum_{i=1}^n \lambda_i y_i$ is parked between $\E[y]-
+\frac{2^{n/2}}{50}$ and $\E[y]+\frac{2^{n/2}}{50}$, a range of size at most
+$\frac{2^{n/2}}{25}$.
+
+It follows that for at least half of the choices of $\lambda_i$, $\sum_{i=1}^n
+\lambda_i v_i$ has both it's coordinates in a narrow range of $\frac{2^{n/2}}{25}$.
+
+We have established that for $\frac{2^n}{2}$ choices of $\lambda_i$,
+$\sum_{i=1}^n\lambda_i v_i$ is in
+
+\[\left[\E[x]-\frac{2^{n/2}}{50},
+\E[x]+\frac{2^{n/2}}{50}\right]\times\left[\E[y]-\frac{2^{n/2}}{50},
+\E[y]+\frac{2^{n/2}}{50}\right]\]
+
+a set that contains $\frac{2^n}{625}$ integer vectors. We can now successfully apply
+pigeonhole principle and obtain the desired result.
+
+\end{proof}
+
+\chapter{Semidefinite Programming}
+
+\chapter{Streaming Algorithms}
+
+\section{Frequency Moments and Turnstile}
+\subsection{AMS sketch}
+
+\subsection{Indyk's algorithm and stable distributions}
+
+\section{Counting number of distinct elements}
+
+\section{$\eps$-heavy hitters}
+
+\subsection{Misra-Gries}
+
+\subsection{CountMin Sketch}
+
+\subsection{CountSketch}
+
+\subsection{BPTree}
+
+\chapter{Random problems and things to think about}
+
+\begin{enumerate}
+
+\item $A$ and $B$ are subsets of $\mathbb{N}$ of size $n$. Define
+$A+B=\{x+y:x\in A, y\in B\}$. Given a distribution $\mathcal{D}$
+over $A+B$, check if there exists two distributions $\mathcal{D}_A$
+and $\mathcal{D}_B$ such that $\mathcal{D}$ is distributed as
+$x+y$ for $x\sim\mathcal{D}_A$ and $y\sim\mathcal{D}_B$.
+
+\item What if we are promised $\mathcal{D}$ is a distribution of
+the above form? Can we find two distributions $\mathcal{D}_A$
+and $\mathcal{D}_B$ so that $\mathcal{D}_A+\mathcal{D}_B$
+is $\eps$ close to $\mathcal{D}$?
+
+\item <fill in this question more clearly later> Lower bounds
+on number of samples needed for estimating $p$-norm from
+a $p$-stable distribution.
+
+\end{enumerate}
+
+\bibliographystyle{alpha}
+\bibliography{diagram}
+
+\end{document}
